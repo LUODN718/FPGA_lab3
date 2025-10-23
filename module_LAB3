@@ -1,0 +1,43 @@
+`timescale 1ns/1ps
+
+module Lab3 (
+    input  wire        sys_clk,
+    input  wire        sys_rst_n,
+    output wire        hsync,
+    output wire        vsync,
+    output wire [15:0] rgb
+);
+
+    wire        vga_clk;
+    wire [9:0]  pix_x;
+    wire [9:0]  pix_y;
+    wire [15:0] pix_data;
+
+
+    pll_ip pll_ip_inst (
+        .inclk0    (sys_clk),     // 50 MHz 输入
+        .areset    (~sys_rst_n),  // 低电平复位 → 高电平复位
+        .c0        (vga_clk),     // 25.175 MHz 输出
+        .locked    ()             // 可不接
+    );
+
+    vga_pic vga_pic_inst (
+        .vga_clk   (vga_clk),
+        .sys_rst_n (sys_rst_n),
+        .pix_x     (pix_x),
+        .pix_y     (pix_y),
+        .pix_data  (pix_data)
+    );
+
+    vga_ctrl vga_ctrl_inst (
+        .vga_clk   (vga_clk),
+        .sys_rst_n (sys_rst_n),
+        .pix_data  (pix_data),
+        .pix_x     (pix_x),
+        .pix_y     (pix_y),
+        .hsync     (hsync),
+        .vsync     (vsync),
+        .rgb       (rgb)
+    );
+
+endmodule
